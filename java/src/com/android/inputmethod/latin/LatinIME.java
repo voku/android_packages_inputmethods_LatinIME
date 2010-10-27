@@ -139,6 +139,9 @@ public class LatinIME extends InputMethodService
     private static final int MSG_VOICE_RESULTS = 3;
     private static final int MSG_UPDATE_OLD_SUGGESTIONS = 4;
 
+    private static final int DELAY_UPDATE_SUGGESTIONS = 180;
+    private static final int DELAY_UPDATE_OLD_SUGGESTIONS = 300;
+
     // How many continuous deletes at which to start deleting at a higher speed.
     private static final int DELETE_ACCELERATE_AT = 20;
     // Key events coming any faster than this are long-presses.
@@ -1619,12 +1622,14 @@ public class LatinIME extends InputMethodService
 
     private void postUpdateSuggestions() {
         mHandler.removeMessages(MSG_UPDATE_SUGGESTIONS);
-        mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_UPDATE_SUGGESTIONS), 100);
+        mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_UPDATE_SUGGESTIONS),
+                DELAY_UPDATE_SUGGESTIONS);
     }
 
     private void postUpdateOldSuggestions() {
         mHandler.removeMessages(MSG_UPDATE_OLD_SUGGESTIONS);
-        mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_UPDATE_OLD_SUGGESTIONS), 300);
+        mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_UPDATE_OLD_SUGGESTIONS),
+                DELAY_UPDATE_OLD_SUGGESTIONS);
     }
 
     private boolean isPredictionOn() {
