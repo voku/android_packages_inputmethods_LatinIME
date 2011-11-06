@@ -2338,10 +2338,13 @@ public class LatinIME extends InputMethodService
             if (!TextUtils.isEmpty(text)) {
                 mKeyboardSwitcher.getInputView().startPlaying(text.toString());
             }
+        } else {
+            changeKeyboardMode();
         }
     }
 
     public void swipeLeft() {
+        changeKeyboardMode();
     }
 
     public void swipeDown() {
@@ -2350,6 +2353,13 @@ public class LatinIME extends InputMethodService
 
     public void swipeUp() {
         //launchSettings();
+        if (mCapsLock) {
+            mCapsLock = false;
+            mKeyboardSwitcher.setShifted(false);
+        } else {
+            mCapsLock = true;
+            mKeyboardSwitcher.setShiftLocked(true);
+        }
     }
 
     public void onPress(int primaryCode) {
