@@ -212,10 +212,6 @@ public class VoiceInputLogger {
         i.putExtra(LoggingEvents.VoiceIme.EXTRA_TEXT_MODIFIED_TYPE,
                    LoggingEvents.VoiceIme.TEXT_MODIFIED_TYPE_CHOOSE_SUGGESTION);
         i.putExtra(LoggingEvents.VoiceIme.EXTRA_TEXT_MODIFIED_LENGTH, suggestionLength);
-        i.putExtra(LoggingEvents.VoiceIme.EXTRA_TEXT_REPLACED_LENGTH, replacedPhraseLength);
-        i.putExtra(LoggingEvents.VoiceIme.EXTRA_N_BEST_CHOOSE_INDEX, index);
-        i.putExtra(LoggingEvents.VoiceIme.EXTRA_BEFORE_N_BEST_CHOOSE, before);
-        i.putExtra(LoggingEvents.VoiceIme.EXTRA_AFTER_N_BEST_CHOOSE, after);
         mContext.sendBroadcast(i);
     }
 
@@ -254,7 +250,7 @@ public class VoiceInputLogger {
         // 2. type subject in subject field
         // 3. speak message in message field
         // 4. press send
-        UserHappinessSignals.setHasVoiceLoggingInfo(hasLoggingInfo);
+        //UserHappinessSignals.setHasVoiceLoggingInfo(hasLoggingInfo);
     }
 
     private boolean hasLoggingInfo(){
