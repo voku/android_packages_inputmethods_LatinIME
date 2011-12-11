@@ -557,17 +557,6 @@ public class LatinIME extends InputMethodService
         return mCandidateViewContainer;
     }
 
-    private static boolean isPasswordVariation(int variation) {
-        return variation == EditorInfo.TYPE_TEXT_VARIATION_PASSWORD
-                || variation == EditorInfo.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                || variation == EditorInfo.TYPE_TEXT_VARIATION_WEB_PASSWORD;
-    }
-
-    private static boolean isEmailVariation(int variation) {
-        return variation == EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
-                || variation == EditorInfo.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS;
-    }
-
     @Override
     public void onStartInputView(EditorInfo attribute, boolean restarting) {
         LatinKeyboardView inputView = mKeyboardSwitcher.getInputView();
@@ -590,7 +579,8 @@ public class LatinIME extends InputMethodService
         // the switch statement) whether we want to enable the voice button.
         mPasswordText = false;
         int variation = attribute.inputType & EditorInfo.TYPE_MASK_VARIATION;
-        if (isPasswordVariation(variation)) {
+        if (variation == EditorInfo.TYPE_TEXT_VARIATION_PASSWORD ||
+                variation == EditorInfo.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD) {
             mPasswordText = true;
         }
 
@@ -625,16 +615,17 @@ public class LatinIME extends InputMethodService
                 //startPrediction();
                 mPredictionOn = true;
                 // Make sure that passwords are not displayed in candidate view
-                if (isPasswordVariation(variation)) {
+                if (variation == EditorInfo.TYPE_TEXT_VARIATION_PASSWORD ||
+                        variation == EditorInfo.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD ) {
                     mPredictionOn = false;
                 }
-                if (isEmailVariation(variation)
+                if (variation == EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
                         || variation == EditorInfo.TYPE_TEXT_VARIATION_PERSON_NAME) {
                     mAutoSpace = false;
                 } else {
                     mAutoSpace = true;
                 }
-                if (isEmailVariation(variation)) {
+                if (variation == EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS) {
                     mPredictionOn = false;
                     mKeyboardSwitcher.setKeyboardMode(KeyboardSwitcher.MODE_EMAIL,
                             attribute.imeOptions, enableVoiceButton);
@@ -2008,21 +1999,9 @@ public class LatinIME extends InputMethodService
             mJustAddedAutoSpace = true;
         }
 
-        // We should show the hint if the user pressed the first entry AND either:
-        // - There is no dictionary (we know that because we tried to load it => null != mSuggest
-        //   AND mHasDictionary is false)
-        // - There is a dictionary and the word is not in it
-        // Please note that if mSuggest is null, it means that everything is off: suggestion
-        // and correction, so we shouldn't try to show the hint
-        // We used to look at mCorrectionMode here, but showing the hint should have nothing
-        // to do with the autocorrection setting.
-        final boolean showingAddToDictionaryHint = index == 0 &&
-                // Test for no dictionary:
-                ((!mHasDictionary && null != mSuggest) ||
-                // Test for dictionary && word is inside:
-                (mHasDictionary && null != mSuggest
+        final boolean showingAddToDictionaryHint = index == 0 && mCorrectionMode > 0
                 && !mSuggest.isValidWord(suggestion)
-                && !mSuggest.isValidWord(suggestion.toString().toLowerCase())));
+                && !mSuggest.isValidWord(suggestion.toString().toLowerCase());
 
         if (!correcting) {
             // Fool the state watcher so that a subsequent backspace will not do a revert, unless
