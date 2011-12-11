@@ -139,6 +139,9 @@ public class LatinIME extends InputMethodService
     private static final int MSG_VOICE_RESULTS = 3;
     private static final int MSG_UPDATE_OLD_SUGGESTIONS = 4;
 
+    private static final int DELAY_UPDATE_SUGGESTIONS = 180;
+    private static final int DELAY_UPDATE_OLD_SUGGESTIONS = 300;
+
     // How many continuous deletes at which to start deleting at a higher speed.
     private static final int DELETE_ACCELERATE_AT = 20;
     // Key events coming any faster than this are long-presses.
@@ -351,6 +354,7 @@ public class LatinIME extends InputMethodService
         //setStatusIcon(R.drawable.ime_qwerty);
         mResources = getResources();
         final Configuration conf = mResources.getConfiguration();
+        PreferenceManager.setDefaultValues(this, R.xml.prefs, false);
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         mLanguageSwitcher = new LanguageSwitcher(this);
         mLanguageSwitcher.loadLocales(prefs);
@@ -1160,9 +1164,9 @@ public class LatinIME extends InputMethodService
         }
     }
 
-    private void showInputMethodPicker() {
+    private void showInputMethodSubtypePicker() {
         ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE))
-                .showInputMethodPicker();
+                .showInputMethodSubtypePicker();
     }
 
     private void onOptionKeyPressed() {
@@ -1178,7 +1182,7 @@ public class LatinIME extends InputMethodService
     private void onOptionKeyLongPressed() {
         if (!isShowingOptionDialog()) {
             if (LatinIMEUtil.hasMultipleEnabledIMEs(this)) {
-                showInputMethodPicker();
+                showInputMethodSubtypePicker();
             } else {
                 launchSettings();
             }
@@ -1618,12 +1622,14 @@ public class LatinIME extends InputMethodService
 
     private void postUpdateSuggestions() {
         mHandler.removeMessages(MSG_UPDATE_SUGGESTIONS);
-        mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_UPDATE_SUGGESTIONS), 100);
+        mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_UPDATE_SUGGESTIONS),
+                DELAY_UPDATE_SUGGESTIONS);
     }
 
     private void postUpdateOldSuggestions() {
         mHandler.removeMessages(MSG_UPDATE_OLD_SUGGESTIONS);
-        mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_UPDATE_OLD_SUGGESTIONS), 300);
+        mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_UPDATE_OLD_SUGGESTIONS),
+                DELAY_UPDATE_OLD_SUGGESTIONS);
     }
 
     private boolean isPredictionOn() {
@@ -2338,10 +2344,13 @@ public class LatinIME extends InputMethodService
             if (!TextUtils.isEmpty(text)) {
                 mKeyboardSwitcher.getInputView().startPlaying(text.toString());
             }
+        } else {
+            changeKeyboardMode();
         }
     }
 
     public void swipeLeft() {
+        changeKeyboardMode();
     }
 
     public void swipeDown() {
@@ -2350,6 +2359,13 @@ public class LatinIME extends InputMethodService
 
     public void swipeUp() {
         //launchSettings();
+        if (mCapsLock) {
+            mCapsLock = false;
+            mKeyboardSwitcher.setShifted(false);
+        } else {
+            mCapsLock = true;
+            mKeyboardSwitcher.setShiftLocked(true);
+        }
     }
 
     public void onPress(int primaryCode) {
@@ -2623,8 +2639,7 @@ public class LatinIME extends InputMethodService
                         launchSettings();
                         break;
                     case POS_METHOD:
-                        ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE))
-                            .showInputMethodPicker();
+                        showInputMethodSubtypePicker();
                         break;
                 }
             }
