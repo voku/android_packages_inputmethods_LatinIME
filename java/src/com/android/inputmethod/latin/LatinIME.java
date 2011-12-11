@@ -1164,9 +1164,9 @@ public class LatinIME extends InputMethodService
         }
     }
 
-    private void showInputMethodSubtypePicker() {
+    private void showInputMethodPicker() {
         ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE))
-                .showInputMethodSubtypePicker();
+                .showInputMethodPicker();
     }
 
     private void onOptionKeyPressed() {
@@ -1182,7 +1182,7 @@ public class LatinIME extends InputMethodService
     private void onOptionKeyLongPressed() {
         if (!isShowingOptionDialog()) {
             if (LatinIMEUtil.hasMultipleEnabledIMEs(this)) {
-                showInputMethodSubtypePicker();
+                showInputMethodPicker();
             } else {
                 launchSettings();
             }
@@ -2639,7 +2639,8 @@ public class LatinIME extends InputMethodService
                         launchSettings();
                         break;
                     case POS_METHOD:
-                        showInputMethodSubtypePicker();
+                        ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE))
+                            .showInputMethodPicker();
                         break;
                 }
             }
